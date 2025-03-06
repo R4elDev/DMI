@@ -64,12 +64,26 @@ fun UserDataScreen() {
                     topEnd = 32.dp
                 ),
             ) {
-                Column {
-                    Row {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 25.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Row(
+                        modifier = Modifier
+
+                    ) {
                         Card(
                             modifier = Modifier
-                                .height(70.dp)
-                                .width(70.dp),
+                                .height(100.dp)
+                                .width(100.dp),
+                            shape = CircleShape,
+                            border = BorderStroke(width = 2.dp, Color(color = 0xFFEF9106))
+                        ) {  }
+                        Card(
+                            modifier = Modifier
+                                .height(100.dp)
+                                .width(100.dp),
                             shape = CircleShape,
                             border = BorderStroke(width = 2.dp, Color(color = 0xFFEF9106))
                         ) {  }
