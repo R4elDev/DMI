@@ -1,5 +1,6 @@
 package br.senai.sp.jandira.bmi.screens
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,17 +27,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import br.senai.sp.jandira.bmi.R
+import br.senai.sp.jandira.bmi.model.BmiStatus
 
 @Composable
-fun BMIResultScreen() {
+fun BMIResultScreen(navController: NavHostController?) {
+
+    val context = LocalContext.current
+    BmiStatus.UNDERWEIGHT
+
+    val sharedUserFile = context.getSharedPreferences("usuarios",Context.MODE_PRIVATE)
+    val userAge = sharedUserFile.getInt("user_age",0)
+    val userWeight = sharedUserFile.getInt("user_weight",0)
+    var userHeight = sharedUserFile.getInt("user_height",0).toDouble()
+
+    userHeight /= 100.0
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -144,7 +160,7 @@ fun BMIResultScreen() {
                                     fontSize = 20.sp
                                 )
                                 Text(
-                                    text = stringResource(R.string.age_number),
+                                    text = userAge.toString(),
                                     color = Color.Black,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
@@ -163,7 +179,7 @@ fun BMIResultScreen() {
                                     fontSize = 20.sp
                                 )
                                 Text(
-                                    text = stringResource(R.string.weight_value),
+                                    text = userWeight.toString() + " Kg",
                                     color = Color.Black,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
@@ -182,7 +198,10 @@ fun BMIResultScreen() {
                                     fontSize = 20.sp
                                 )
                                 Text(
-                                    text = stringResource(R.string.high_value),
+                                    text = String.format(java.util.Locale.getDefault(),
+                                        format = "%.2f",
+                                        userHeight
+                                    ),
                                     color = Color.Black,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
@@ -200,7 +219,9 @@ fun BMIResultScreen() {
                     }
                     HorizontalDivider()
                     Button(
-                        onClick = {},
+                        onClick = {navController?.navigate(
+                            route = "user_data"
+                        )},
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .height(50.dp),
@@ -226,5 +247,5 @@ fun BMIResultScreen() {
 @Preview(showSystemUi = true)
 @Composable
 private fun BMIResultScreenPreview() {
-    BMIResultScreen()
+    BMIResultScreen(navController = null)
 }

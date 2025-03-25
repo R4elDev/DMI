@@ -1,5 +1,6 @@
 package br.senai.sp.jandira.bmi.screens
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +48,7 @@ fun TelaInicial(navController: NavHostController?) {
         mutableStateOf(value = "")
     }
 
-    var status = remember {
+    var isErrorStatus = remember {
         mutableStateOf(value = false)
     }
 
@@ -55,7 +56,10 @@ fun TelaInicial(navController: NavHostController?) {
         mutableStateOf("")
     }
 
+    // Variavel que guarda o contexto que estamos
     var context = LocalContext.current
+
+
 
     Box(
         modifier = Modifier
@@ -136,7 +140,7 @@ fun TelaInicial(navController: NavHostController?) {
                                 keyboardType = KeyboardType.Text,
                                 capitalization = KeyboardCapitalization.Sentences
                             ),
-                            isError = status.value,
+                            isError = isErrorStatus.value,
                             supportingText = {
                                 Text(
                                     text = errorMessageState.value,
@@ -148,12 +152,19 @@ fun TelaInicial(navController: NavHostController?) {
                     Button(
                         onClick = {
                             if(nomeState.value.length < 3){
-                                status.value = true
+                                isErrorStatus.value = true
                                 errorMessageState.value = context.getString(R.string.support_name)
                             } else{
-                                navController?.navigate(
-                                    route = "user_data"
-                                )
+                                // Criar o acesso a um arquivo SharedPreferences
+                                val sharedNome = context
+                                    .getSharedPreferences("usuarios",Context.MODE_PRIVATE)
+                                // Criar uma variavel para editar o arquivo que acabamos de criar ou abrir
+                                val editor = sharedNome.edit()
+                                // Adiciona ao arquivo uma nova linha -> nome do usuario
+                                editor.putString("user_name", nomeState.value.trim())
+                                // Aplica de fato a informaçao dentro do arquivo
+                                editor.apply()
+                                navController?.navigate(route = "user_data")
                             }
                         },
                         modifier = Modifier

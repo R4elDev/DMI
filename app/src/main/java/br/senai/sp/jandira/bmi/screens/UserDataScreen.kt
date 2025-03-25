@@ -1,5 +1,6 @@
 package br.senai.sp.jandira.bmi.screens
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -49,10 +51,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import br.senai.sp.jandira.bmi.R
 
 @Composable
-fun UserDataScreen() {
+fun UserDataScreen(navController: NavHostController?) {
 
     var nomeAge = remember {
         mutableStateOf(value = "")
@@ -65,6 +68,12 @@ fun UserDataScreen() {
     var nomeHeight = remember {
         mutableStateOf(value = "")
     }
+
+    // Abrir o arquivo usuario.xml para recuperar o nome que o usuario digitou na tela anterior
+    var context = LocalContext.current
+    var sharedUserFile = context
+        .getSharedPreferences("usuarios",Context.MODE_PRIVATE)
+    val userName = sharedUserFile.getString("user_name","Name not found!")
 
     Box(
         modifier = Modifier
@@ -88,7 +97,7 @@ fun UserDataScreen() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.hi),
+                    text = stringResource(R.string.hi) + " $userName!",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 25.sp
@@ -268,7 +277,15 @@ fun UserDataScreen() {
                         )
                     }
                     Button(
-                        onClick = {},
+                        onClick = {
+                            val editor = sharedUserFile.edit()
+                            editor.putInt("user_age",nomeAge.value.trim().toInt())
+                            editor.putInt("user_weight",nomeWeight.value.trim().toInt())
+                            editor.putInt("user_height",nomeHeight.value.trim().toInt())
+                            editor.apply()
+                            navController?.navigate(
+                            route = "result_screen"
+                        )},
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .height(50.dp),
@@ -295,5 +312,5 @@ fun UserDataScreen() {
 @Preview(showSystemUi = true)
 @Composable
 private fun UserDataScreenPreview() {
-    UserDataScreen()
+    UserDataScreen(navController = null)
 }
