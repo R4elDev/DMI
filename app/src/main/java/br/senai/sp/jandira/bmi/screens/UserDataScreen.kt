@@ -73,6 +73,7 @@ fun UserDataScreen(navController: NavHostController?) {
     var context = LocalContext.current
     var sharedUserFile = context
         .getSharedPreferences("usuarios",Context.MODE_PRIVATE)
+
     val userName = sharedUserFile.getString("user_name","Name not found!")
 
     Box(

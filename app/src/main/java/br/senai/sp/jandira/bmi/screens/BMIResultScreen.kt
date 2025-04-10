@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
@@ -38,20 +39,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.senai.sp.jandira.bmi.R
+import br.senai.sp.jandira.bmi.calcs.bmiCalculator
 import br.senai.sp.jandira.bmi.model.BmiStatus
+import br.senai.sp.jandira.bmi.screens.components.BmiLevel
+import br.senai.sp.jandira.bmi.utils.isFilled
+import br.senai.sp.jandira.bmi.utils.numberFormat
 
 @Composable
 fun BMIResultScreen(navController: NavHostController?) {
 
     val context = LocalContext.current
-    BmiStatus.UNDERWEIGHT
+
 
     val sharedUserFile = context.getSharedPreferences("usuarios",Context.MODE_PRIVATE)
+
     val userAge = sharedUserFile.getInt("user_age",0)
     val userWeight = sharedUserFile.getInt("user_weight",0)
-    var userHeight = sharedUserFile.getInt("user_height",0).toDouble()
+    var userHeight: Double = sharedUserFile.getInt("user_height",0).toDouble()
 
-    userHeight /= 100.0
+    val bmiResult = bmiCalculator(userWeight, userHeight.div(100))
 
     Box(
         modifier = Modifier
@@ -117,10 +123,13 @@ fun BMIResultScreen(navController: NavHostController?) {
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = stringResource(R.string.bmi_value),
+                                text = String.format(
+                                    java.util.Locale.getDefault(),
+                                    "%.1f",
+                                    bmiResult.bmi.second),
                                 color = Color.Black,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 35.sp
+                                fontSize = 25.sp
                             )
                         }
                     }
@@ -130,7 +139,7 @@ fun BMIResultScreen(navController: NavHostController?) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ){
                         Text(
-                            text = stringResource(R.string.class_bmi),
+                            text = bmiResult.bmi.first,
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp
@@ -179,7 +188,7 @@ fun BMIResultScreen(navController: NavHostController?) {
                                     fontSize = 20.sp
                                 )
                                 Text(
-                                    text = userWeight.toString() + " Kg",
+                                    text = "$userWeight Kg",
                                     color = Color.Black,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
@@ -192,16 +201,13 @@ fun BMIResultScreen(navController: NavHostController?) {
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = stringResource(R.string.high),
+                                    text = stringResource(R.string.height),
                                     color = Color.Gray,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
                                 )
                                 Text(
-                                    text = String.format(java.util.Locale.getDefault(),
-                                        format = "%.2f",
-                                        userHeight
-                                    ),
+                                    text = String.format(java.util.Locale.getDefault(), "%.2f", userHeight.div(100)),
                                     color = Color.Black,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 20.sp
@@ -209,38 +215,66 @@ fun BMIResultScreen(navController: NavHostController?) {
                             }
                         }
                     }
-                    Box(
+                    BmiLevel(
+                        markColor = colorResource(R.color.light_blue),
+                        text1 = stringResource(R.string.value_underweight),
+                        isFilled = isFilled(bmiResult.bmiStatus, BmiStatus.UNDERWEIGHT)
+                    )
+                    BmiLevel(
+                        markColor = colorResource(R.color.light_green),
+                        text1 = stringResource(R.string.value_normal),
+                        text2 = "${numberFormat(18.6)}  -  ${numberFormat(24.9)}",
+                        isFilled = isFilled(bmiResult.bmiStatus, BmiStatus.NORMAL)
+                    )
+                    BmiLevel(
+                        markColor = colorResource(R.color.yellow),
+                        text1 = stringResource(R.string.value_overweight),
+                        text2 = "${numberFormat(25.0)}  -  ${numberFormat(29.9)}",
+                        isFilled = isFilled(bmiResult.bmiStatus, BmiStatus.OVERWEIGHT)
+                    )
+                    BmiLevel(
+                        markColor = colorResource(R.color.light_orange),
+                        text1 = stringResource(R.string.value_obesity1),
+                        text2 = "${numberFormat(30.0)}  -  ${numberFormat(34.9)}",
+                        isFilled = isFilled(bmiResult.bmiStatus, BmiStatus.OBESITY1)
+                    )
+                    BmiLevel(
+                        markColor = colorResource(R.color.dark_red),
+                        text1 = stringResource(R.string.value_obesity2),
+                        text2 = "${numberFormat(35.0)}  -  ${numberFormat(39.9)}",
+                        isFilled = isFilled(bmiResult.bmiStatus, BmiStatus.OBESITY2)
+                    )
+                    BmiLevel(
+                        markColor = colorResource(R.color.red),
+                        text1 = stringResource(R.string.value_obesity3),
+                        text2 = "> ${numberFormat(39.9)}",
+                        isFilled = isFilled(bmiResult.bmiStatus, BmiStatus.OBESITY3)
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                    )
+                    Button(
+                        onClick = {
+
+                            navController?.navigate("user_data")
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp)
-                            .background(Color.Yellow)
-                    ){
-
-                    }
-                    HorizontalDivider()
-                    Button(
-                        onClick = {navController?.navigate(
-                            route = "user_data"
-                        )},
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .height(50.dp),
+                            .height(60.dp)
+                            .padding(vertical = 4.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(color = 0xFFEF9106)
-                        )
+                            containerColor = Color(0xFF3F51B5)
+                        ),
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            textAlign = TextAlign.Center,
-                            text = stringResource(R.string.new_calculate),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 25.sp
-                        )
+                        Text(text = stringResource(R.string.new_calculate),
+                            fontSize = 20.sp)
                     }
                 }
             }
         }
+
     }
 }
 

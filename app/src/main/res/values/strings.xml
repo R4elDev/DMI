@@ -21,4 +21,16 @@
     <string name="high">High</string>
     <string name="high_value">178 cm</string>
     <string name="new_calculate">New Calc</string>
+    <string name="under_weight">You are below your ideal weight</string>
+    <string name="normal_weight">You have normal body weight</string>
+    <string name="over_weight">You are slightly overweight</string>
+    <string name="class1_weight">You have Class I Obesity</string>
+    <string name="class2_weight">You have Class II Obesity</string>
+    <string name="class3_weight">You have Class III Obesity</string>
+    <string name="value_underweight">Underweight</string>
+    <string name="value_normal">Normal</string>
+    <string name="value_overweight">Overweight</string>
+    <string name="value_obesity1">Obesity class I</string>
+    <string name="value_obesity2">Obesity class II</string>
+    <string name="value_obesity3">Obesity class III</string>
 </resources>
